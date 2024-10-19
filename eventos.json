@@ -1,0 +1,29 @@
+{
+  "eventos": [
+    {
+      "nome": "Conferência de Tecnologia",
+      "data": "2024-11-15",
+      "extra": false
+    },
+    {
+      "nome": "Conferência de Tecnologia",
+      "data": "2024-11-20",
+      "extra": false
+    },
+    {
+      "nome": "Workshop de Programação",
+      "data": "2024-12-01",
+      "extra": true
+    },
+    {
+      "nome": "Hackathon Universitário",
+      "data": "2025-01-20",
+      "extra": false
+    },
+    {
+      "nome": "Palestra sobre Inteligência Artificial",
+      "data": "2024-10-25",
+      "extra": true
+    }
+  ]
+}
