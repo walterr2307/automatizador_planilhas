@@ -1,28 +1,43 @@
 {
   "eventos": [
     {
-      "nome": "Conferência de Tecnologia",
-      "data": "2024-11-15",
+      "nome": "Reunião Administrativa",
+      "data": "02/09/2024",
       "extra": false
     },
     {
-      "nome": "Conferência de Tecnologia",
-      "data": "2024-11-20",
+      "nome": "Reunião Administrativa",
+      "data": "09/09/2024",
       "extra": false
     },
     {
-      "nome": "Workshop de Programação",
-      "data": "2024-12-01",
+      "nome": "Reunião Administrativa",
+      "data": "16/09/2024",
+      "extra": false
+    },
+    {
+      "nome": "Reunião Administrativa",
+      "data": "23/09/2024",
+      "extra": false
+    },
+    {
+      "nome": "Reunião Administrativa",
+      "data": "30/09/2024",
+      "extra": false
+    },
+    {
+      "nome": "Mesa Redonda",
+      "data": "19/09/2024",
       "extra": true
     },
     {
-      "nome": "Hackathon Universitário",
-      "data": "2025-01-20",
-      "extra": false
+      "nome": "Interpet",
+      "data": "20/09/2024",
+      "extra": true
     },
     {
-      "nome": "Palestra sobre Inteligência Artificial",
-      "data": "2024-10-25",
+      "nome": "Encontros Petianos",
+      "data": "05/09/2024",
       "extra": true
     }
   ]

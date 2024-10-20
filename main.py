@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 from math import ceil
+from planilha_individual import PlanilhaIndividual
 
 
 # Exceção personalizada para lidar com erros na planilha
@@ -17,6 +18,7 @@ class PlanilhaPresencas:
         self.petianos = self.definirPetianos()  # Obtém os nomes dos petianos
         self.qtd_petianos = len(self.petianos)  # Conta quantos petianos existem
         self.qtd_faltas = [0] * self.qtd_petianos  # Inicializa contagem de faltas
+        self.qtd_faltas_just = [0] * self.qtd_petianos
 
         # Inicializa os eventos e suas informações
         self.lista_eventos = []  # Lista para armazenar os nomes dos eventos registrados
@@ -24,6 +26,8 @@ class PlanilhaPresencas:
         self.nome_eventos, self.datas, self.extras = self.definirEventos()  # Obtém informações dos eventos
         self.qtd_eventos = len(self.nome_eventos)  # Conta quantos eventos existem
         self.qtd_eventos_petiano = [self.qtd_eventos] * self.qtd_petianos  # Inicializa contagem de eventos por petiano
+        self.eventos_extras_petiano = [0] * self.qtd_petianos
+        self.eventos_presentes = np.zeros((self.qtd_petianos, self.qtd_eventos), dtype=int)
 
         # Cria a matriz da planilha
         self.mat_planilha = self.definirMatrizPlanilha()  # Inicializa a matriz para registrar as presenças
@@ -31,6 +35,10 @@ class PlanilhaPresencas:
 
         # Executa o método principal para registrar presenças
         self.executar()
+
+        PlanilhaIndividual(self.petianos, self.nome_eventos, self.lista_eventos, self.eventos_presentes,
+                           self.qtd_faltas, self.qtd_faltas_just, self.qtd_eventos_petiano, self.eventos_extras_petiano,
+                           self.datas)
 
     def definirPetianos(self):
         # Lê o arquivo JSON e extrai os nomes dos petianos
@@ -79,7 +87,7 @@ class PlanilhaPresencas:
 
     def definirMatrizPlanilha(self):
         # Define o número de colunas adicionais com base nos eventos
-        if (len(self.lista_eventos) - self.qtd_eventos_extras > self.qtd_eventos_extras):
+        if len(self.lista_eventos) - self.qtd_eventos_extras > self.qtd_eventos_extras:
             num_col_add = len(self.lista_eventos) - self.qtd_eventos_extras
         else:
             num_col_add = self.qtd_eventos_extras
@@ -117,8 +125,8 @@ class PlanilhaPresencas:
 
     def ajustarAtividades(self):
         # Ajusta a matriz para incluir as atividades padrão e extras
-        self.mat_planilha[self.qtd_petianos + 2][0] = 'Atividades Padrão'
-        self.mat_planilha[self.qtd_petianos + 2][1] = 'Atividades Extras'
+        self.mat_planilha[self.qtd_petianos + 2][0] = 'ATIVIDADES PADRÃO'
+        self.mat_planilha[self.qtd_petianos + 2][1] = 'ATIVIDADES EXTRA'
         eventos_registrados = np.zeros(len(self.lista_eventos), dtype=bool)  # Array para controlar eventos registrados
 
         i = self.qtd_petianos + 3  # Índice para preencher atividades
@@ -152,13 +160,14 @@ class PlanilhaPresencas:
             return
 
         if self.extras[j - 1]:  # Se é uma atividade extra
-            aux = int(self.mat_planilha[i + 1][1])  # Atualiza atividades extras
+            self.eventos_extras_petiano[i] += 1
+            aux = int(self.mat_planilha[i + 1][2])  # Atualiza atividades extras
             aux += 1
-            self.mat_planilha[i + 1][1] = str(aux)  # Converte para string e armazena
+            self.mat_planilha[i + 1][2] = str(aux)  # Converte para string e armazena
         else:
-            aux = int(self.mat_planilha[i + 1][2])  # Atualiza faltas
+            aux = int(self.mat_planilha[i + 1][1])  # Atualiza atividades padrão
             aux += 1
-            self.mat_planilha[i + 1][2] = str(aux)
+            self.mat_planilha[i + 1][1] = str(aux)
 
         if opcao == 0:  # Faltou
             self.qtd_faltas[i] += 1
@@ -167,6 +176,8 @@ class PlanilhaPresencas:
             self.mat_planilha[i + 1][3] = str(aux)
 
         elif opcao == 2:  # Falta justificada
+            self.qtd_faltas[i] += 1
+            self.qtd_faltas_just[i] += 1
             aux = int(self.mat_planilha[i + 1][3])  # Atualiza faltas justificadas
             aux += 1
             self.mat_planilha[i + 1][3] = str(aux)
@@ -177,7 +188,8 @@ class PlanilhaPresencas:
     def atualizarLimiteFaltas(self, i):
         # Calcula e atualiza os limites de faltas para um petiano
         limite = self.qtd_eventos_petiano[i] * 0.25  # Limite de faltas
-        excedente = ceil(self.qtd_faltas[i] - limite)  # Faltas além do limite
+        saldo_faltas = self.qtd_faltas[i] - self.qtd_faltas_just[i]
+        excedente = ceil(saldo_faltas - limite)  # Faltas além do limite
 
         if excedente < 0:
             excedente = 0  # Ajusta se excedente for negativo
@@ -200,6 +212,8 @@ class PlanilhaPresencas:
                     # Verifica se a opção é válida
                     if opcao < 0 or opcao > 3:
                         raise PlanilhaException()  # Lança uma exceção se a opção não for válida
+
+                    self.eventos_presentes[i][j] = opcao
 
                     # Chama o método para ajustar as presenças
                     self.ajustarPresencas(opcao, i, j)
